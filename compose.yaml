@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:17-alpine
-    container_name: invoice-postgres
+    container_name: smart-invoice-postgres
     restart: always
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -17,14 +17,28 @@ services:
       timeout: 5s
       retries: 5
 
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: smart-invoice-backend
+  flyway:
+    image: flyway/flyway:11.7.2
+    container_name: smart-invoice-flyway
     depends_on:
       db:
         condition: service_healthy
+    environment:
+      FLYWAY_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-invoice_db}
+      FLYWAY_USER: ${POSTGRES_USER:-invoice_user}
+      FLYWAY_PASSWORD: ${POSTGRES_PASSWORD:-invoice_pass}
+    volumes:
+      - ./backend/src/main/resources/db/migration:/flyway/sql
+    command: -baselineOnMigrate=true migrate
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+    container_name: smart-invoice-backend
+    depends_on:
+      flyway:
+        condition: service_completed_successfully
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-invoice_db}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-invoice_user}
