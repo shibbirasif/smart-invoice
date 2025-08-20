@@ -43,7 +43,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-invoice_db}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-invoice_user}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-invoice_pass}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SMTP_USERNAME: ${SMTP_USERNAME}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "8080:8080"
     restart: always
