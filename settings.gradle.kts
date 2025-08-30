@@ -1,4 +1,3 @@
 rootProject.name = "smart-invoice"
 
-include("backend")
-include("frontend")
+include("backend", "frontend")
